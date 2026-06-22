@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { Item } from "./item";
+import { Item } from "./item.js";
 
-export const router = Router();
+const router = Router();
 
 // Seed: creates a test item with stock:10
 router.post("/seed", async (_req, res) => {
@@ -22,3 +22,5 @@ router.post("/claim/:id", async (req, res) => {
 
   res.json({ claimed: true, stockAfter: item.stock });
 });
+
+export default router;
