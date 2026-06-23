@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { Item } from "./item.js";
+import { Claim } from "./claim.js";
 
 const router = Router();
 
@@ -11,6 +12,14 @@ router.post("/seed", async (_req, res) => {
 
 // FIXED — atomic check-and-decrement, no gap
 router.post("/claim/:id", async (req, res) => {
+  try {
+    await Claim.create({ requestId, itemId: req.params.id });
+  } catch (e) {
+    if (e.code === 11000)
+      return res.status(409).json({ error: "duplicate request" });
+    throw e;
+  }
+
   const item = await Item.findOneAndUpdate(
     { _id: req.params.id, stock: { $gt: 0 } },
     { $inc: { stock: -1 } },
