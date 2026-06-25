@@ -1,9 +1,13 @@
 const ID = process.argv[2];
-const URL = `http://localhost:3000/claim/${ID}`;
+const URL = `http://localhost:3000/items/${ID}/claim`;
 
+const reqId = crypto.randomUUID();
 const results = await Promise.all(
-  Array.from({ length: 50 }, () =>
-    fetch(URL, { method: "POST" }).then((r) => r.json()),
+  Array.from({ length: 50 }, (_, i) =>
+    fetch(URL, {
+      method: "POST",
+      headers: { "x-request-id": reqId },
+    }).then((r) => r.json()),
   ),
 );
 
