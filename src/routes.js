@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { Item } from "./item.js";
-import { Claim } from "./claim.js";
+import { Item } from "./models/Item.js";
+import { Claim } from "./models/Claim.js";
 
 const router = Router();
 

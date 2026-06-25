@@ -1,5 +1,5 @@
-import { Claim } from "../claim.js";
-import { Item } from "../item.js";
+import { Claim } from "../models/Claim.js";
+import { Item } from "../models/Item.js";
 
 export default function expireChecker() {
   setInterval(async () => {
