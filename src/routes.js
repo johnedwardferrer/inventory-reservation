@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { Item } from "./models/Item.js";
 import { Claim } from "./models/Claim.js";
+import { AuditLog } from "./models/AuditLog.js";
 
 const router = Router();
 
@@ -35,13 +36,21 @@ router.post("/items/:id/claim", async (req, res) => {
   const item = await Item.findOneAndUpdate(
     { _id: req.params.id, stock: { $gt: 0 } },
     { $inc: { stock: -1 } },
-    { new: true },
   );
 
   if (!item) {
     await Claim.deleteOne({ requestId });
     return res.status(409).json({ error: "no stock" });
   }
+
+  await AuditLog.create({
+    itemId: item._id,
+    requestId:claim._id,
+    previousStock: item.stock,
+    newStock: item.stock-1,
+    action: "claim"
+  })
+
   res.json({ claimed: true, stockAfter: item.stock, claimId: claim._id });
 });
 

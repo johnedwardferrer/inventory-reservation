@@ -1,5 +1,6 @@
-import { Claim } from "../models/Claim.js";
+  import { Claim } from "../models/Claim.js";
 import { Item } from "../models/Item.js";
+import { AuditLog } from "../models/AuditLog.js";
 
 export default function expireChecker() {
   setInterval(async () => {
@@ -25,10 +26,21 @@ export default function expireChecker() {
     }
 
     await Promise.all(
-      Object.entries(itemCounts).map(([itemId, count]) =>
-        Item.findByIdAndUpdate(itemId, {
+      Object.entries(itemCounts).map(async([itemId, count]) =>{
+          const item = await Item.findByIdAndUpdate(itemId, {
           $inc: { stock: count },
-        }),
+        }, 
+      )
+
+          await AuditLog.create({
+            itemId: itemId,
+            previousStock: item.stock,
+            newStock:item.stock+count ,
+            action: "release"
+          })
+
+        return item
+      }
       ),
     );
 
