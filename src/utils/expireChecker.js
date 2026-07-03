@@ -3,8 +3,13 @@ import { Item } from "../models/Item.js";
 import { AuditLog } from "../models/AuditLog.js";
 
 export default function expireChecker() {
+  let running = false
   setInterval(async () => {
-    const expiredClaims = await Claim.find({
+    if (running)return;
+    running = true
+
+    try {
+        const expiredClaims = await Claim.find({
       expiresAt: { $lt: new Date() },
       status: "pending",
     });
@@ -47,5 +52,11 @@ export default function expireChecker() {
     await Claim.deleteMany({
       _id: { $in: expiredClaims.map((c) => c._id) },
     });
+    } catch (error) {
+      console.log(error)
+    }finally{
+      running=false
+    }
+  
   }, 1000);
 }
