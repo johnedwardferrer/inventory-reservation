@@ -38,6 +38,28 @@ together — no window for another request to slip in and read stale stock.
 
 No overselling observed across any run.
 
+## PHASE 6 ACCOMPLISHED:
+- Item component tracks per-claim lifecycle via useRef (claimId, expiresAt,
+  timeout, tick interval) — no shared state map needed, key={item._id}
+  gives natural per-item isolation
+- Stock decrements at claim time (matches server's atomic reservation in
+  Phase 3), not at confirm — UI no longer shows stale availability during
+  pending window
+- One-shot setTimeout scheduled past server-given expiresAt (not polling
+  interval) triggers a single /status check; local 1s tick is pure display
+  math, zero network cost
+- Added GET /items/claim/:claimId/status (read-only, lazy-expire-on-read,
+  reuses existing refund+audit transaction shape) — justified as no new
+  correctness claim, only exposes existing server truth
+- /confirm route now independently re-derives expiry inside its own
+  transaction rather than trusting client to have polled /status first
+- Replaced string-matched error branching (err.message === "STRING") with
+  stable `code` field across /claim and /confirm — closes Phase 5 debt
+  item flagged in prior handoff
+- Client resync paths: EXPIRED -> revert stock+UI, ALREADY_RESOLVED ->
+  re-check and converge (handles cross-tab confirm race)
+- Loading/disabled states on claim + confirm buttons, inline error display
+
 ## Stack
 
 - Node 24 LTS

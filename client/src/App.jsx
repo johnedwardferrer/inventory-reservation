@@ -1,10 +1,12 @@
-import { useState } from "react";
-
+import { Routes, Route } from "react-router-dom";
+import Home from "./pages/Home/Home";
+import ItemList from "./pages/Items/Items"
 function App() {
   return (
-    <>
-      <h1>react</h1>
-    </>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/items" element={<ItemList />} />
+    </Routes>
   );
 }
 

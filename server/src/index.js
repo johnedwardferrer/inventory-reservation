@@ -2,21 +2,33 @@ import express from "express";
 import mongoose from "mongoose";
 import "dotenv/config";
 import router from "./routes.js";
+import path from "path";
+import { fileURLToPath } from "url";
 
 import expireChecker from "./services/expireChecker.js";
+
+
 const app = express();
 app.use(express.json());
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const clientDistPath = path.resolve(
+  __dirname,
+  "../../client/dist"
+);
+
+app.use(express.static(clientDistPath));
+
 
 app.get("/health", (_req, res) => res.status(200).json({ status: "ok" }));
 
 expireChecker();
 
-app.use(router);
+app.use('/api', router);
 
-app.use((req, res) => {
-  res.status(404).json({
-    error: "Route not found",
-  });
+app.get("/{*splat}", (req, res) => {
+  res.sendFile(path.join(clientDistPath, "index.html"));
 });
 
 app.use((err, req, res, next) => {
